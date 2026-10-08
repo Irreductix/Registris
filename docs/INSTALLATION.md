@@ -1,7 +1,7 @@
 # Installer Registris
 
 Trois voies, selon le serveur dont dispose la DSI. Toutes partent de la
-[dernière release](https://github.com/QuentinCazier/Registris/releases) : une
+[dernière release](https://github.com/Irreductix/Registris/releases) : une
 archive qui contient l'application **avec ses dépendances**, les installateurs,
 la documentation, une nomenclature logicielle (CycloneDX) et les sommes SHA-256.
 Le serveur n'a besoin ni d'accès à internet ni de `npm`.
@@ -161,13 +161,15 @@ sauf `--supprimer-donnees`.
 
 ```bash
 mkdir registris && cd registris
-curl -fsSLO https://raw.githubusercontent.com/QuentinCazier/Registris/main/installation/docker/docker-compose.yml
+curl -fsSLO https://raw.githubusercontent.com/Irreductix/Registris/main/installation/docker/docker-compose.yml
 # adapter environment (nom de l'établissement, annuaire, courriels)
 docker compose up -d
 docker compose exec registris node src/cli.js utilisateur admin admin "Administrateur"
 ```
 
-L'image `ghcr.io/quentincazier/registris` est construite par la release,
+L'image est construite par la release sous `ghcr.io/irreductix/registris` à
+partir de la version qui suit la 0.5.0 ; la 0.5.0 reste sous
+`ghcr.io/quentincazier/registris`, d'où le fichier compose. Elle
 tourne sans privilège, expose `/sante` pour la supervision et garde la base, les
 pièces et le secret de session dans le volume `registris-donnees`. Par défaut
 le port n'est publié que sur l'adresse locale, pour un reverse-proxy HTTPS de

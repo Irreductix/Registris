@@ -18,7 +18,7 @@ clic.
 
 > Logiciel libre (licence EUPL-1.2). Fonctionne entièrement sur votre réseau,
 > sans aucun service externe. Présentation en ligne :
-> <https://quentincazier.github.io/Registris/>.
+> <https://registris.irreductix.fr/>.
 
 ![Tableau de bord de Registris](site/captures/accueil.png)
 
@@ -158,7 +158,7 @@ La revue périodique : chaque référent statue sur ses applications, et le rapp
 
 ## Installer
 
-Chaque [release](https://github.com/QuentinCazier/Registris/releases) fournit
+Chaque [release](https://github.com/Irreductix/Registris/releases) fournit
 un installateur Windows complet (assistant, Node.js et service compris, rien à
 installer avant), une archive Linux avec les dépendances et un script systemd,
 et une image Docker. Le serveur n'a pas besoin d'accès à internet. Tout est
@@ -170,7 +170,7 @@ Prérequis : [Node.js](https://nodejs.org) 22 ou plus récent. Aucune base de
 données à installer (SQLite intégré), aucun compilateur.
 
 ```bash
-git clone https://github.com/QuentinCazier/Registris.git
+git clone https://github.com/Irreductix/Registris.git
 cd registris
 npm install
 npm run demo      # base de démonstration (données fictives)
@@ -189,7 +189,9 @@ Comptes de démonstration (mot de passe commun `demo-registris`) :
 Pour une vraie installation, voir [docs/INSTALLATION.md](docs/INSTALLATION.md)
 (installateurs) et [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md)
 (reverse-proxy HTTPS, Active Directory, SMTP, sauvegardes),
-[docs/AUDIT.md](docs/AUDIT.md) (comment s'en servir pendant un audit) et
+[docs/AUDIT.md](docs/AUDIT.md) (comment s'en servir pendant un audit),
+[docs/RSSI.md](docs/RSSI.md) (les questions d'une DSI ou d'un RSSI avant
+d'installer, avec les réponses tirées du code) et
 [docs/ACCESSIBILITE.md](docs/ACCESSIBILITE.md) (ce qui est vérifié, ce qui ne
 l'est pas, et le modèle de déclaration à compléter par l'établissement).
 
@@ -286,6 +288,8 @@ chaque route, validation des fichiers téléversés, refus de démarrer en
 production sans secret de session.
 Le chiffrement TLS est confié à un reverse-proxy (voir la documentation de
 déploiement). Signalement d'une faille : voir [SECURITY.md](SECURITY.md).
+Questions avant d'installer : [docs/RSSI.md](docs/RSSI.md), ou
+<contact@irreductix.fr>.
 
 ## Contribuer
 

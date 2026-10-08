@@ -56,7 +56,7 @@ export function monter(app) {
             <div class="d">Copiez-le maintenant : il ne sera plus affiché.</div>
             <code class="hash" style="display:inline-block;margin-top:6px;user-select:all">${echap(nouveau.jeton)}</code></div></div>` : ''}
         <p class="aide">GLPI, la supervision ou un script lisent les demandes en attente et les accès d'un agent, sans pouvoir rien modifier.
-          Chaque outil a son jeton, révocable à tout moment. Mode d'emploi : <a href="https://github.com/QuentinCazier/Registris/blob/main/docs/API.md">docs/API.md</a>.</p>
+          Chaque outil a son jeton, révocable à tout moment. Mode d'emploi : <a href="https://github.com/Irreductix/Registris/blob/main/docs/API.md">docs/API.md</a>.</p>
         <div class="deux-col">
           <section style="margin-top:0"><h2>Jetons</h2>
             ${lignes ? `<div class="bloc"><table><caption>Jetons de l'API</caption><thead><tr><th scope="col">Outil</th><th scope="col">Créé le</th><th scope="col">Dernier appel</th><th scope="col">État</th><th scope="col"><span class="sr">Action</span></th></tr></thead><tbody>${lignes}</tbody></table></div>`

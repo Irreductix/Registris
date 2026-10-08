@@ -1,0 +1,20 @@
+name: Poser une question
+description: Sur l'installation, l'annuaire, l'usage pendant un audit, ou ce que l'outil ne fait pas.
+title: "Question : "
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Les réponses aux questions courantes d'une DSI sont dans docs/RSSI.md, celles sur l'audit dans docs/AUDIT.md. Si la vôtre n'y est pas, c'est une bonne question.
+  - type: textarea
+    id: question
+    attributes:
+      label: La question
+    validations:
+      required: true
+  - type: input
+    id: contexte
+    attributes:
+      label: Contexte
+      placeholder: "avant l'installation / en test / en production depuis trois mois"

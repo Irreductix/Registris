@@ -22,7 +22,7 @@ Ce guide détaille chaque réglage, pour les adapter ou les faire à la main.
   de 200 ms, et l'export complet du registre en moins de cinq secondes.
 
 ```bash
-git clone https://github.com/QuentinCazier/Registris.git
+git clone https://github.com/Irreductix/Registris.git
 cd registris
 npm install --omit=dev
 cp .env.example .env

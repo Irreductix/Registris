@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Signaler une faille de sécurité
+    url: https://github.com/Irreductix/Registris/security/advisories/new
+    about: En privé, jamais dans un ticket public. Ou par courriel à contact@irreductix.fr.
+  - name: Écrire au collectif
+    url: https://irreductix.fr/#contact
+    about: Pour une question qui ne tient pas dans un ticket, ou si vous n'avez pas de compte GitHub.

@@ -4,7 +4,10 @@
 
 Merci de ne pas ouvrir de ticket public pour une faille. Utilisez la
 fonctionnalité « Report a vulnerability » de l'onglet Security du dépôt GitHub,
-ou contactez l'auteur par le courriel indiqué sur son profil GitHub.
+ou écrivez à <contact@irreductix.fr>.
+
+Les questions qu'une DSI ou un RSSI pose avant d'installer, avec les réponses
+tirées du code, sont rassemblées dans [docs/RSSI.md](docs/RSSI.md).
 
 Indiquez : la version concernée, les étapes de reproduction, l'impact estimé.
 Un accusé de réception est envoyé sous une semaine. La correction peut prendre
