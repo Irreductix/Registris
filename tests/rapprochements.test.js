@@ -9,10 +9,11 @@ import assert from 'node:assert/strict';
 
 import './_env.js';
 
-const { initialiserSchema } = await import('../src/db.js');
+const { initialiserSchema, ouvrirDb } = await import('../src/db.js');
 const H = await import('../src/habilitations.js');
 const A = await import('../src/administration.js');
 const R = await import('../src/rapprochements.js');
+const I = await import('../src/indicateurs.js');
 const { journal } = await import('../src/audit.js');
 
 initialiserSchema();
@@ -211,4 +212,63 @@ test('chaque étape laisse sa trace au journal', () => {
   for (const a of ['rapprochement:deposer', 'rapprochement:analyser', 'rapprochement:suite']) {
     assert.ok(actions.includes(a), a);
   }
+});
+
+// --- Reprise de l'existant ----------------------------------------------------------
+
+test('reprise : les comptes non déclarés entrent au registre d’un coup, sans accord du cadre', () => {
+  const rep = A.creerApplication('test', { code: 'REP', libelle: 'Reprise', categorieId: cat });
+  hab('00800', rep, 'executee', { nom: 'Deja' });
+  ouvrirDb().prepare('UPDATE applications SET accord_cadre = 1 WHERE id = ?').run(rep);
+  const extraction = [
+    'Matricule;Nom;Profil',
+    '800;DEJA Luc;Guichet',
+    '801;UN Anne;Admissions',
+    '802;;Facturation',
+    '803;TROIS Paul;',
+    '00100;;Regie',
+  ].join('\n');
+  const id = R.deposer('ctrl', { applicationId: rep, tampon: csv(extraction), nom: 'rep.csv' });
+  R.analyser('ctrl', id, { matricule: 0, nom: 1, profil: 2 });
+  assert.equal(R.bilanRapprochement(id).parCategorie.non_declare, 4);
+  const volumesAvant = I.volumesParMois().at(-1).ouvertes;
+
+  assert.throws(() => R.regulariserTous('ref', 9999), /introuvable/);
+  const b = R.regulariserTous('ref', id, { profilDefaut: 'Consultation' });
+  assert.deepEqual(b, { regularisees: 3, sansNom: 1, sansProfil: 0 });
+
+  const lignes = R.lignesRapprochement(id, { categorie: 'non_declare' });
+  const par = (m) => lignes.find((l) => l.matricule === m);
+  assert.equal(par('802').suite, null, 'agent inconnu sans nom : rien n’est inventé');
+  for (const m of ['801', '803', '00100']) assert.equal(par(m).suite, 'regularise', m);
+  const h = H.habilitationParId(par('803').habilitation_id);
+  assert.equal(h.statut, 'executee');
+  assert.equal(h.role, 'Consultation', 'profil par défaut faute de profil dans l’extraction');
+  assert.equal(h.origine, 'rapprochement');
+  assert.notEqual(h.accord_cadre, 'attente', 'un accès déjà ouvert n’attend pas l’accord du cadre');
+  assert.match(h.commentaire, /Reprise de l'existant/);
+  assert.equal(H.habilitationParId(par('00100').habilitation_id).matricule, '00100', 'l’agent connu garde le matricule du registre');
+
+  assert.equal(I.volumesParMois().at(-1).ouvertes, volumesAvant, 'les volumes mensuels ignorent la reprise');
+  assert.ok(!I.delaisOuverture({ depuis: '2000-01-01' }).some((d) => d.id === h.id), 'les délais ignorent la reprise');
+  assert.throws(() => R.regulariserTous('ref', id), /un par un/, 'il ne reste que l’agent sans nom');
+  assert.ok(journal({ limite: 20 }).some((j) => j.action === 'rapprochement:reprise'));
+});
+
+test('reprise : sans profil dans l’extraction, le profil par défaut est exigé', () => {
+  const id = R.deposer('ctrl', { applicationId: dpi, tampon: csv('Matricule;Nom\n900;NEUF Zoe\n901;DIX Max\n'), nom: 'dpi.csv' });
+  R.analyser('ctrl', id, { matricule: 0, nom: 1 });
+  assert.throws(() => R.regulariserTous('ref', id), /profil/);
+  assert.equal(R.regulariserTous('ref', id, { profilDefaut: 'Lecture' }).regularisees, 2);
+  assert.throws(() => R.regulariserTous('ref', id), /Aucun compte/);
+});
+
+test('régularisation unitaire : une application exigeant l’accord du cadre ne bloque plus', () => {
+  const app = A.creerApplication('test', { code: 'ACC', libelle: 'Accord', categorieId: cat });
+  ouvrirDb().prepare('UPDATE applications SET accord_cadre = 1 WHERE id = ?').run(app);
+  const id = R.deposer('ctrl', { applicationId: app, tampon: csv('Matricule;Nom;Profil\n950;SEUL Max;Lecture\n'), nom: 'acc.csv' });
+  R.analyser('ctrl', id, { matricule: 0, nom: 1, profil: 2 });
+  const l = R.lignesRapprochement(id, { categorie: 'non_declare' })[0];
+  const fait = R.donnerSuite('ref', l.id, 'regularise');
+  assert.equal(H.habilitationParId(fait.habilitation_id).statut, 'executee');
 });

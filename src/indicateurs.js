@@ -30,6 +30,9 @@ export function synthese(delais) {
   };
 }
 
+// Un compte régularisé après rapprochement n'a jamais été demandé : son délai ne dit rien.
+const HORS_REGULARISATION = "COALESCE(origine, '') <> 'rapprochement'";
+
 // Du dépôt à l'ouverture. Les deux dates sont au jour près dans le registre.
 export function delaisOuverture({ depuis }) {
   return ouvrirDb()
@@ -38,7 +41,7 @@ export function delaisOuverture({ depuis }) {
               h.date_demande, h.date_realisation
          FROM habilitations h JOIN applications a ON a.id = h.application_id
         WHERE h.date_realisation IS NOT NULL AND h.date_demande IS NOT NULL
-          AND h.date_realisation >= ?`,
+          AND h.date_realisation >= ? AND ${HORS_REGULARISATION}`,
     )
     .all(depuis)
     .map((h) => ({ ...h, jours: (versInstant(h.date_realisation) - versInstant(h.date_demande)) / JOUR }));
@@ -104,7 +107,7 @@ export function volumesParMois({ mois = 12, maintenant = new Date() } = {}) {
   const compter = (colonne) => new Map(
     db.prepare(
       `SELECT substr(${colonne}, 1, 7) AS m, COUNT(*) AS n FROM habilitations
-        WHERE ${colonne} >= ? GROUP BY m`,
+        WHERE ${colonne} >= ? AND ${HORS_REGULARISATION} GROUP BY m`,
     ).all(`${cles[0]}-01`).map((r) => [r.m, r.n]),
   );
   const deposees = compter('date_demande');

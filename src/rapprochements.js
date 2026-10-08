@@ -278,9 +278,37 @@ export function matriculesConnus() {
 }
 
 // Un agent peut déjà exister sous « 00012345 » quand l'extraction dit « 12345 ».
-function agentParMatriculeNormalise(matricule) {
-  const cle = normaliserMatricule(matricule);
-  return ouvrirDb().prepare('SELECT * FROM agents').all().find((a) => normaliserMatricule(a.matricule) === cle) ?? null;
+function indexAgents() {
+  const index = new Map();
+  for (const a of ouvrirDb().prepare('SELECT * FROM agents').all()) index.set(normaliserMatricule(a.matricule), a);
+  return index;
+}
+
+const referenceDe = (r) => `rapprochement n°${r.id} du ${String(r.analyse_le ?? r.cree_le).slice(0, 10)} (${r.fichier})`;
+
+// Le compte trouvé dans l'application entre au registre, exécuté d'emblée, avec la référence du constat.
+function regulariser(acteur, ligne, r, { nom = '', prenom = '', role = '', connu = null, reprise = false }) {
+  const profil = String(role || ligne.profil_application || '').trim();
+  if (!profil) throw new Error('Indiquez le profil ouvert dans l’application.');
+  const [nomDeduit, ...reste] = String(ligne.nom ?? '').trim().split(/\s+/);
+  const reference = referenceDe(r);
+  const h = creerHabilitation(acteur, {
+    agent: {
+      matricule: connu?.matricule ?? ligne.matricule,
+      nom: String(nom || nomDeduit || '').trim(),
+      prenom: String(prenom || reste.join(' ')).trim(),
+    },
+    applicationId: r.application_id,
+    role: profil,
+    demandeur: acteur,
+    pourAutrui: true,
+    origine: 'rapprochement',
+    commentaire: reprise
+      ? `Reprise de l'existant : compte trouvé dans l'application lors du ${reference}, sans pièce justificative.`
+      : `Régularisation : compte trouvé dans l'application lors du ${reference}.`,
+  });
+  changerStatut(acteur, h.id, 'executer');
+  return h.id;
 }
 
 const SUITES_PERMISES = {
@@ -297,29 +325,13 @@ export function donnerSuite(acteur, ligneId, suite, { nom = '', prenom = '', rol
   if (ligne.suite) throw new Error('Cet écart a déjà été traité.');
   if (!SUITES_PERMISES[suite]?.includes(ligne.categorie)) throw new Error('Cette suite ne convient pas à cet écart.');
   const r = rapprochementParId(ligne.rapprochement_id);
-  const reference = `rapprochement n°${r.id} du ${String(r.analyse_le ?? r.cree_le).slice(0, 10)} (${r.fichier})`;
+  const reference = referenceDe(r);
 
   return transaction(() => {
     let habilitationId = ligne.habilitation_id;
     if (suite === 'regularise') {
-      const profil = String(role || ligne.profil_application || '').trim();
-      if (!profil) throw new Error('Indiquez le profil ouvert dans l’application.');
-      const [nomDeduit, ...reste] = String(ligne.nom ?? '').trim().split(/\s+/);
-      const connu = agentParMatriculeNormalise(ligne.matricule);
-      const h = creerHabilitation(acteur, {
-        agent: {
-          matricule: connu?.matricule ?? ligne.matricule,
-          nom: String(nom || nomDeduit || '').trim(),
-          prenom: String(prenom || reste.join(' ')).trim(),
-        },
-        applicationId: r.application_id,
-        role: profil,
-        demandeur: acteur,
-        pourAutrui: true,
-        commentaire: `Régularisation : compte trouvé dans l'application lors du ${reference}.`,
-      });
-      changerStatut(acteur, h.id, 'executer');
-      habilitationId = h.id;
+      const connu = indexAgents().get(normaliserMatricule(ligne.matricule)) ?? null;
+      habilitationId = regulariser(acteur, ligne, r, { nom, prenom, role, connu });
     } else if (suite === 'revoque') {
       changerStatut(acteur, ligne.habilitation_id, 'revoquer', { motif: `Absent de l'application au ${reference}.` });
     } else if (suite === 'execute') {
@@ -336,4 +348,51 @@ export function donnerSuite(acteur, ligneId, suite, { nom = '', prenom = '', rol
     });
     return ligneParId(ligne.id);
   });
+}
+
+// Reprise de l'existant : les comptes non déclarés entrent au registre d'un coup, ouverts, sans pièce.
+// Un agent inconnu sans nom dans l'extraction reste à traiter à la main : le registre ne porte pas de nom inventé.
+export function regulariserTous(acteur, rapprochementId, { profilDefaut = '' } = {}) {
+  const r = rapprochementParId(rapprochementId);
+  if (!r) throw new Error('Rapprochement introuvable.');
+  const defaut = String(profilDefaut ?? '').trim();
+  const lignes = lignesRapprochement(r.id, { categorie: 'non_declare' }).filter((l) => !l.suite);
+  if (!lignes.length) throw new Error('Aucun compte non déclaré à régulariser.');
+
+  const agents = indexAgents();
+  const retenues = [];
+  let sansNom = 0;
+  let sansProfil = 0;
+  for (const ligne of lignes) {
+    const connu = agents.get(normaliserMatricule(ligne.matricule)) ?? null;
+    const profil = String(ligne.profil_application || defaut).trim();
+    if (!profil) sansProfil += 1;
+    else if (!connu && !String(ligne.nom ?? '').trim()) sansNom += 1;
+    else retenues.push({ ligne, connu, profil });
+  }
+  if (!retenues.length) {
+    throw new Error(sansProfil
+      ? "L'extraction ne donne pas de profil : indiquez le profil à retenir par défaut."
+      : "L'extraction ne donne pas le nom de ces agents, inconnus du registre : ajoutez la colonne du nom, ou régularisez-les un par un.");
+  }
+
+  const db = ouvrirDb();
+  const solder = db.prepare(
+    "UPDATE rapprochement_lignes SET suite = 'regularise', suite_par = ?, suite_le = datetime('now'), habilitation_id = ? WHERE id = ? AND suite IS NULL",
+  );
+  const regularisees = transaction(() => {
+    let n = 0;
+    for (const { ligne, connu, profil } of retenues) {
+      if (ligneParId(ligne.id).suite) continue;
+      const id = regulariser(acteur, ligne, r, { role: profil, connu, reprise: true });
+      n += solder.run(acteur, id, ligne.id).changes;
+    }
+    return n;
+  });
+  tracer(acteur, 'rapprochement:reprise', {
+    entite: 'rapprochement',
+    entiteId: r.id,
+    details: { application: r.app_libelle, regularisees, sansNom, sansProfil, ...(defaut ? { profilDefaut: defaut } : {}) },
+  });
+  return { regularisees, sansNom, sansProfil };
 }

@@ -927,6 +927,37 @@ test('rapprochement : le contrôle constate, le référent corrige, l’agent n�
   assert.equal((await agent.go(url)).status, 403);
 });
 
+test('rapprochement : la reprise de l’existant régularise d’un coup, réservée au référent', async () => {
+  const ctrl = client();
+  await ctrl.connecter('ctrl');
+  const liste = await (await ctrl.go('/rapprochements')).text();
+  const fd = new FormData();
+  fd.set('_csrf', ctrl.csrf(liste));
+  fd.set('applicationId', String(gam));
+  fd.set('extraction', new Blob([Buffer.from('Matricule;Nom\nR1;REPRIS Un\nR2;REPRIS Deux\nR3;\n', 'utf8')]), 'gam-reprise.csv');
+  const depot = await ctrl.go('/rapprochements', { method: 'POST', body: fd });
+  const url = depot.headers.get('location');
+  const id = Number(url.match(/\/rapprochements\/(\d+)/)[1]);
+  const config = await (await ctrl.go(url)).text();
+  await ctrl.go(`/rapprochements/${id}/analyser`, urlencode({ matricule: '0', nom: '1' }, ctrl.csrf(config)));
+  const vuCtrl = await (await ctrl.go(url)).text();
+  assert.doesNotMatch(vuCtrl, /regulariser-tous/, 'le contrôleur constate, il ne reprend pas');
+  const refus = await ctrl.go(`/rapprochements/${id}/regulariser-tous`, urlencode({ profilDefaut: 'Lecture' }, ctrl.csrf(vuCtrl)));
+  assert.equal(refus.status, 403);
+
+  const ref = client();
+  await ref.connecter('ref');
+  const vu = await (await ref.go(url)).text();
+  assert.match(vu, /Reprise de l(&#39;|')existant/);
+  assert.match(vu, /name="profilDefaut" required/, 'sans profil dans l’extraction, le profil par défaut est exigé');
+  const reprise = await ref.go(`/rapprochements/${id}/regulariser-tous`, urlencode({ profilDefaut: 'Lecture' }, ref.csrf(vu)));
+  assert.equal(reprise.status, 302);
+  const apres = await (await ref.go(reprise.headers.get('location'))).text();
+  assert.match(apres, /2 comptes régularisés au registre/);
+  assert.match(apres, /1 agent sans nom/);
+  assert.doesNotMatch(apres, /regulariser-tous/, 'une seule ligne reste : plus de reprise groupée');
+});
+
 test('rapprochement : un référent ne voit pas celui d’une application hors de son périmètre', async () => {
   const ctrl = client();
   await ctrl.connecter('ctrl');

@@ -117,6 +117,11 @@ La revue périodique : chaque référent statue sur ses applications, et le rapp
   (régulariser, révoquer, marquer exécutée, noter la fermeture), et tout renvoie
   à l'extraction d'origine, conservée avec son empreinte. C'est la seule réponse
   à la question « et les accès que personne n'a déclarés ? ».
+- **Reprise de l'existant** : au premier rapprochement, les comptes qui
+  existaient avant le registre entrent d'un coup, comme accès ouverts sans
+  pièce, avec la référence de l'extraction. La première revue périodique les
+  confirme ensuite un à un. On démarre ainsi sans ressaisir des années
+  d'habilitations.
 - **Indicateurs de délai** : du dépôt à l'ouverture, et surtout du signalement
   d'un départ à la fermeture réelle, par application, sur trois, six ou douze
   mois, avec les volumes mensuels. Médiane et « 9 sur 10 en moins de » plutôt

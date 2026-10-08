@@ -114,6 +114,19 @@ telle quelle, avec son empreinte SHA-256, et se télécharge depuis le
 rapprochement. Un constat se corrige tant qu'aucun écart n'a été traité ; après,
 il ne se réécrit plus : on dépose une nouvelle extraction.
 
+**Reprise de l'existant.** Au premier rapprochement d'une application, presque
+tous les comptes ressortent « non déclarés » : ils existaient avant le registre.
+Plutôt que de les régulariser un par un, le référent les reprend d'un coup,
+depuis le bloc « Compte non déclaré ». Chaque compte entre au registre comme
+accès ouvert, avec la référence de l'extraction en commentaire, sans pièce
+justificative, et sans passer par l'accord du cadre, qui n'a plus d'objet pour
+un accès déjà ouvert. Le profil est celui de l'extraction, sinon celui indiqué
+par défaut. Un agent inconnu du registre dont l'extraction ne donne pas le nom
+reste à traiter à la main : le registre ne porte pas de nom inventé. La première
+revue périodique confirme ensuite ces accès un à un ; c'est elle qui vaut
+validation. Les comptes régularisés, en masse ou un par un, sont écartés des
+indicateurs de délai : ils n'ont jamais été demandés.
+
 Un rapprochement par application sensible et par trimestre donne à l'auditeur
 une série datée, ce qui vaut mieux qu'un contrôle ponctuel la veille de sa venue.
 

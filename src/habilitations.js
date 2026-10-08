@@ -368,7 +368,8 @@ export function suggererAgents(terme, { limite = 8 } = {}) {
 // --- Création et cycle de vie ---------------------------------------------------
 
 // `donnees` : agent { matricule, nom, prenom, email }, applicationId, role,
-// ufIds[], ufLibre, siteId, demandeur, pourAutrui, commentaire, dateDemande.
+// ufIds[], ufLibre, siteId, demandeur, pourAutrui, commentaire, dateDemande,
+// origine ('rapprochement' pour un compte régularisé : hors indicateurs de délai).
 export function creerHabilitation(acteur, donnees) {
   const db = ouvrirDb();
   const application = applicationParId(donnees.applicationId);
@@ -384,8 +385,8 @@ export function creerHabilitation(acteur, donnees) {
       .prepare(
         `INSERT INTO habilitations
            (agent_id, application_id, role, statut, demandeur, cree_par, pour_autrui,
-            site_id, uf_libre, commentaire, date_demande, date_fin)
-         VALUES (?, ?, ?, 'demandee', ?, ?, ?, ?, ?, ?, ?, ?)`,
+            site_id, uf_libre, commentaire, date_demande, date_fin, origine)
+         VALUES (?, ?, ?, 'demandee', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         agent.id,
@@ -399,6 +400,7 @@ export function creerHabilitation(acteur, donnees) {
         donnees.commentaire ? String(donnees.commentaire).trim() : null,
         donnees.dateDemande ?? aujourdhui(),
         dateFin,
+        donnees.origine ? String(donnees.origine) : null,
       );
     const nouvelId = Number(info.lastInsertRowid);
     const lien = db.prepare('INSERT OR IGNORE INTO habilitation_ufs (habilitation_id, uf_id) VALUES (?, ?)');
@@ -416,7 +418,8 @@ export function creerHabilitation(acteur, donnees) {
       demandeur: donnees.demandeur ?? acteur,
     },
   });
-  if (application.accord_cadre) initialiserAccord(id, acteur);
+  // Un compte régularisé existe déjà dans l'application : l'accord du cadre n'a plus d'objet.
+  if (application.accord_cadre && donnees.origine !== 'rapprochement') initialiserAccord(id, acteur);
   return habilitationParId(id);
 }
 

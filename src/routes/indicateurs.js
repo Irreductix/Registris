@@ -110,7 +110,8 @@ export function monter(app) {
 
         <p class="champ-aide">Médiane et « 9 sur 10 » plutôt que moyenne : une seule demande oubliée
           plusieurs mois suffit à fausser une moyenne, alors que ces deux chiffres disent ce qu'attend
-          réellement un agent.</p>`,
+          réellement un agent. Les comptes régularisés après un rapprochement ne comptent pas :
+          ils n'ont jamais été demandés.</p>`,
         `<a class="btn" href="/indicateurs.csv?periode=${periode}">Exporter en CSV</a>`,
         { sous: `${PERIODES[periode]}, depuis le ${r.depuis}` }),
     );
