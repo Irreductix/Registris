@@ -1,0 +1,39 @@
+name: Signaler un bug
+description: Quelque chose ne fait pas ce que la documentation dit.
+title: "Bug : "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Pour une faille de sécurité, n'utilisez pas ce formulaire : voir SECURITY.md. Ne joignez aucune donnée réelle.
+  - type: input
+    id: version
+    attributes:
+      label: Version et système
+      placeholder: "0.5.0, Windows Server 2022, Edge 130"
+    validations:
+      required: true
+  - type: textarea
+    id: etapes
+    attributes:
+      label: Étapes pour reproduire
+      placeholder: |
+        1. Se connecter en référent
+        2. Ouvrir un rapprochement
+        3. Cliquer sur ...
+    validations:
+      required: true
+  - type: textarea
+    id: attendu
+    attributes:
+      label: Ce qui devrait se passer
+    validations:
+      required: true
+  - type: textarea
+    id: observe
+    attributes:
+      label: Ce qui se passe
+      description: Le message d'erreur exact, et les lignes du journal du service si vous les avez (journaux/ sous Windows, journald sous Linux).
+    validations:
+      required: true

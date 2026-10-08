@@ -1,0 +1,50 @@
+name: Je teste Registris dans mon établissement
+description: Dites-nous où vous en êtes, ce qui a marché et ce qui a bloqué. C'est le retour qui a le plus de valeur.
+title: "Essai : "
+labels: [essai]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci. Ne joignez aucune donnée réelle : ni base, ni pièce, ni capture avec des noms ou matricules. Reproduisez avec la base de démonstration si besoin.
+  - type: input
+    id: contexte
+    attributes:
+      label: Contexte
+      description: Type d'établissement et taille, sans le nommer si vous préférez.
+      placeholder: "centre hospitalier, 1 500 agents, une DSI de 6 personnes"
+    validations:
+      required: true
+  - type: dropdown
+    id: installation
+    attributes:
+      label: Installation
+      options:
+        - Installateur Windows
+        - Archive Linux avec systemd
+        - Docker
+        - Autre
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "0.5.0"
+    validations:
+      required: true
+  - type: textarea
+    id: marche
+    attributes:
+      label: Ce qui a marché
+  - type: textarea
+    id: bloque
+    attributes:
+      label: Ce qui a bloqué ou manqué
+      description: À l'installation, à la connexion à l'annuaire, au premier rapprochement, pendant un audit.
+    validations:
+      required: true
+  - type: textarea
+    id: auditeurs
+    attributes:
+      label: Ce que vos auditeurs demandent et que l'outil ne donne pas

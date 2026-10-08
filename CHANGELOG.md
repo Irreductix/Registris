@@ -1,5 +1,19 @@
 # Journal des versions
 
+## Non publié
+
+- Documentation : page « Questions d'un RSSI » (`docs/RSSI.md`), les réponses
+  tirées du code aux questions d'une DSI avant d'installer, y compris ce qui
+  n'est pas couvert.
+- Contact : adresse <contact@irreductix.fr> dans SECURITY.md, le README, le
+  guide de contribution et le site ; modèles de tickets (essai dans un
+  établissement, bug, question) avec lien vers le signalement privé de faille.
+- Registris est désormais publié par le collectif Irréductix (irreductix.fr) :
+  dépôt déplacé vers github.com/Irreductix/Registris (les anciennes adresses
+  redirigent), site de présentation sur registris.irreductix.fr. L'image Docker
+  sera publiée sous ghcr.io/irreductix/registris à partir de la prochaine
+  version.
+
 ## 0.5.0
 
 - Reprise de l'existant : depuis un rapprochement, le référent régularise d'un

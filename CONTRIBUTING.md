@@ -23,7 +23,7 @@ démonstration (`npm run demo`).
 ## Code
 
 ```bash
-git clone https://github.com/QuentinCazier/Registris.git
+git clone https://github.com/Irreductix/Registris.git
 cd registris
 npm install
 npm run verifier      # style (ESLint), types (TypeScript sur le JavaScript) et tests
@@ -55,3 +55,11 @@ décision de conception.
 
 En contribuant, vous acceptez que votre contribution soit publiée sous la
 licence du projet (EUPL-1.2).
+
+## Contact
+
+Pour une question qui ne tient pas dans un ticket, ou si vous n'avez pas de
+compte GitHub : <contact@irreductix.fr>. Pour une faille de sécurité, voir
+[SECURITY.md](SECURITY.md). Registris est publié par
+[Irréductix](https://irreductix.fr), un collectif qui construit des outils
+libres pour le service public.
