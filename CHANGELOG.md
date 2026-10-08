@@ -1,5 +1,19 @@
 # Journal des versions
 
+## 0.5.0
+
+- Reprise de l'existant : depuis un rapprochement, le référent régularise d'un
+  coup tous les comptes non déclarés. Chacun entre au registre comme accès
+  ouvert, sans pièce, avec la référence de l'extraction ; la première revue
+  périodique les confirme ensuite. Profil par défaut demandé quand l'extraction
+  n'en donne pas ; un agent inconnu sans nom reste à traiter un par un.
+- Les comptes régularisés après rapprochement n'entrent plus dans les
+  indicateurs de délai ni dans les volumes mensuels : ils n'ont jamais été
+  demandés.
+- Correction : la régularisation d'un compte sur une application exigeant
+  l'accord du cadre échouait, la demande restant en attente d'un accord sans
+  objet pour un accès déjà ouvert.
+
 ## 0.4.0
 
 - Installateur Windows : l'assistant règle toute la configuration, sans fichier

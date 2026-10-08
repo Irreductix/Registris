@@ -105,6 +105,18 @@ mainteneurs, mais un ticket ici pour demander la mise à jour est bienvenu).
   des comptes vus à la connexion : un référent qui ne s'est jamais connecté n'y
   figure que par un périmètre déclaré, et sans courriel.
 
+## Revue de sécurité de la version 0.5.0
+
+| Surface | Protection |
+|---|---|
+| Reprise de l'existant (régularisation en masse depuis un rapprochement) | réservée au référent de l'application, comme la régularisation unitaire ; confirmation avant l'envoi ; chaque compte entre au registre avec la référence de l'extraction et la mention « sans pièce justificative » ; aucun nom n'est inventé pour un agent inconnu, la ligne reste à traiter ; une entrée de journal résume l'opération et chaque habilitation créée garde ses propres écritures |
+| Accord du cadre non demandé pour un compte régularisé | assumé : le compte existe déjà dans l'application, l'accord porterait sur un accès déjà ouvert ; l'origine « rapprochement » et le commentaire le disent |
+| Colonne `origine` des habilitations | ajoutée par la migration automatique, vide pour l'existant ; ne sert qu'à écarter ces comptes des indicateurs de délai |
+
+Montée de version vérifiée : une base créée par la 0.4.0, avec ses données de
+démonstration, ouverte par la 0.5.0, garde sa chaîne d'audit et son coffre
+intègres, et chaque page répond sans erreur pour chaque rôle.
+
 ## Revue de sécurité de la version 0.4.0
 
 Surfaces nouvelles et ce qui les protège, chaque point couvert par des tests :

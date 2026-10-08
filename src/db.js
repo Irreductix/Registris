@@ -439,6 +439,7 @@ export function initialiserSchema() {
   ajouterColonneSiAbsente('habilitations', 'accord_par', 'TEXT');
   ajouterColonneSiAbsente('habilitations', 'accord_le', 'TEXT');
   ajouterColonneSiAbsente('preuves', 'purgee_le', 'TEXT');
+  ajouterColonneSiAbsente('habilitations', 'origine', 'TEXT');
   base.exec(`
     CREATE INDEX IF NOT EXISTS idx_hab_date_fin ON habilitations(date_fin);
     CREATE INDEX IF NOT EXISTS idx_hab_accord ON habilitations(accord_cadre);

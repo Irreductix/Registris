@@ -816,6 +816,7 @@ export const LIB_ACTION = {
   'rapprochement:deposer': "a déposé l'extraction d'une application",
   'rapprochement:analyser': "a rapproché l'extraction du registre",
   'rapprochement:suite': 'a traité un écart de rapprochement',
+  'rapprochement:reprise': "a régularisé d'un coup les comptes non déclarés d'un rapprochement",
   'rapprochement:exporter': 'a exporté un rapprochement',
   'rapprochement:telecharger': "a téléchargé l'extraction d'un rapprochement",
   'revue:ouvrir': 'a ouvert une campagne de revue',

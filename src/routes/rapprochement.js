@@ -6,7 +6,7 @@ import { tracer } from '../audit.js';
 import { fichierCsv } from '../csv.js';
 import {
   CATEGORIES, deposer, rapprochementParId, contenu, apercu, listerRapprochements, analyser,
-  bilanRapprochement, lignesRapprochement, ligneParId, donnerSuite, matriculesConnus, normaliserMatricule,
+  bilanRapprochement, lignesRapprochement, ligneParId, donnerSuite, regulariserTous, matriculesConnus, normaliserMatricule,
 } from '../rapprochements.js';
 import { echap, ICONES, page, pageErreur, bandeauOk, bandeauAlerte, item, pluriel, tag } from '../ui.js';
 import { upload, nombre, perimetreRevue } from './outils.js';
@@ -188,6 +188,22 @@ export function monter(app, { verifierCsrf }) {
          ${l.hab_role ? `<span class="sous">${echap(l.hab_role)}</span>` : ''}${l.date_revocation ? `<span class="sous">révoquée le ${echap(l.date_revocation)}</span>` : ''}`
       : '<span class="micro">aucune habilitation</span>');
 
+    // Premier rapprochement : les comptes non déclarés sont en général légitimes, on les reprend d'un coup.
+    const reprise = (ls) => {
+      const restantes = ls.filter((l) => !l.suite);
+      if (!agir || restantes.length < 2) return '';
+      const sansProfil = restantes.some((l) => !String(l.profil_application ?? '').trim());
+      return `<form method="post" action="/rapprochements/${r.id}/regulariser-tous" class="bloc-pied" style="border-top:0;border-bottom:1px solid var(--filet)"
+          data-confirmer="Régulariser d'un coup les ${restantes.length} comptes non déclarés ? Chacun entrera au registre comme accès ouvert, sans pièce justificative.">
+        <b>Reprise de l'existant.</b> Si ces comptes sont légitimes, ils entrent au registre d'un coup, comme accès ouverts,
+        avec la référence de cette extraction et sans pièce ; la première revue périodique les confirmera un à un.
+        Le profil retenu est celui de l'extraction${sansProfil ? ', sinon celui indiqué ici' : ''}.
+        Un agent inconnu du registre sans nom dans l'extraction reste à traiter un par un.
+        <div class="revue-actions" style="margin-top:8px">
+          ${sansProfil ? '<input name="profilDefaut" required maxlength="200" placeholder="Profil par défaut" aria-label="Profil retenu quand l’extraction n’en donne pas">' : ''}
+          <button class="btn btn-petit btn-primary">Régulariser les ${restantes.length} comptes</button></div></form>`;
+    };
+
     const bloc = (categorie) => {
       const ls = lignesRapprochement(r.id, { categorie });
       if (!ls.length) return '';
@@ -196,6 +212,7 @@ export function monter(app, { verifierCsrf }) {
         <div class="bloc-tete"><h2>${CATEGORIES[categorie].libelle}</h2><span class="c">${ls.length}</span>
           <span class="d">${reste ? `<span class="puce p-${CATEGORIES[categorie].gravite}">${pluriel(reste, 'à traiter', '')}</span>` : '<span class="puce p-fait">tout est traité</span>'}</span></div>
         <div class="bloc-pied" style="border-top:0;border-bottom:1px solid var(--filet);background:var(--blanc)">${EXPLICATION[categorie]}</div>
+        ${categorie === 'non_declare' ? reprise(ls) : ''}
         <table><caption>${CATEGORIES[categorie].libelle}</caption>
           <thead><tr><th scope="col">Matricule</th><th scope="col">Agent</th><th scope="col">Profil dans l'application</th>
             <th scope="col">Registre</th><th scope="col"><span class="sr">Suite</span></th></tr></thead>
@@ -210,9 +227,11 @@ export function monter(app, { verifierCsrf }) {
       + `<div class="chiffre"><div class="t">Concordants</div><div class="v">${bilan.parCategorie.concordant}</div>
           <div class="d">${pluriel(r.comptes ?? 0, 'compte')} lus dans l'application</div></div>`;
 
+    const message = String(req.query.ok ?? '').slice(0, 300);
     res.send(
       page(req, `Rapprochement n° ${r.id}`,
-        `${bilan.ecarts
+        `${message ? bandeauOk(echap(message)) : ''}
+        ${bilan.ecarts
           ? (bilan.traites === bilan.ecarts ? bandeauOk(`Les ${bilan.ecarts} écarts ont été traités.`)
             : bandeauAlerte(`${pluriel(bilan.ecarts - bilan.traites, 'écart')} à traiter sur ${bilan.ecarts}.`))
           : bandeauOk("L'application et le registre concordent : aucun écart.")}
@@ -264,6 +283,26 @@ export function monter(app, { verifierCsrf }) {
       return res.status(400).send(pageErreur(req, 'Action impossible', e.message, `/rapprochements/${r.id}`));
     }
     return res.redirect(`/rapprochements/${r.id}#${ligne.categorie}`);
+  });
+
+  app.post('/rapprochements/:id/regulariser-tous', exigerAuth, exigerDroit('habilitation:valider'), (req, res) => {
+    const r = charger(req, res);
+    if (!r) return;
+    const u = req.session.utilisateur;
+    if (!peutAgir(u, r.application_id)) {
+      return res.status(403).send(pageErreur(req, 'Accès refusé', `Seul un référent de ${r.app_libelle} corrige le registre.`, `/rapprochements/${r.id}`));
+    }
+    try {
+      const b = regulariserTous(u.login, r.id, { profilDefaut: req.body.profilDefaut });
+      const message = [
+        `${pluriel(b.regularisees, 'compte')} ${b.regularisees >= 2 ? 'régularisés' : 'régularisé'} au registre.`,
+        b.sansNom ? `${pluriel(b.sansNom, 'agent')} sans nom dans l'extraction ${b.sansNom >= 2 ? 'restent' : 'reste'} à traiter un par un.` : '',
+        b.sansProfil ? `${pluriel(b.sansProfil, 'ligne')} sans profil ${b.sansProfil >= 2 ? 'restent' : 'reste'} à traiter.` : '',
+      ].filter(Boolean).join(' ');
+      return res.redirect(`/rapprochements/${r.id}?ok=${encodeURIComponent(message)}#non_declare`);
+    } catch (e) {
+      return res.status(400).send(pageErreur(req, 'Reprise impossible', e.message, `/rapprochements/${r.id}`));
+    }
   });
 
   app.get('/rapprochements/:id/export.csv', exigerAuth, exigerDroit('habilitation:suivre'), (req, res) => {
