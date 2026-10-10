@@ -3,6 +3,15 @@
 Merci de l'intérêt porté au projet. Les retours de terrain sont ce qui a le
 plus de valeur.
 
+## Par où commencer
+
+Les tickets marqués `good first issue` sont faits pour une première
+contribution, et plusieurs ne demandent pas de savoir coder : tester l'outil
+avec un lecteur d'écran, compléter la bibliothèque des logiciels hospitaliers.
+La page <https://irreductix.fr/contribuer> les présente avec le profil attendu
+pour chacun. Vous testez Registris dans votre établissement ? Le formulaire
+« Je teste Registris dans mon établissement » est fait pour ça.
+
 ## Ce qui aide le plus
 
 - **Retour d'expérience d'établissement** : ce qui a marché, ce qui a bloqué à
