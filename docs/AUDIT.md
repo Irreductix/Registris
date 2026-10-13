@@ -21,7 +21,8 @@ les applications contenant des données de santé.
 
 ## Ce que fournit l'outil
 
-Menu « Audit, Dossier de preuves » : collez les matricules, obtenez un ZIP :
+Menu « Preuves et audit, Dossier de preuves » : collez les matricules, obtenez
+un ZIP :
 
 | Fichier | Contenu |
 |---|---|
@@ -35,12 +36,17 @@ L'export est lui-même tracé au journal (qui a exporté quoi, quand).
 ## Ce qui rend le registre crédible
 
 - **Journal chaîné** : chaque action est scellée par l'empreinte de la
-  précédente. Un auditeur peut demander une vérification à l'écran (« Audit,
-  Journal d'audit ») ou en ligne de commande (`registris verifier`).
-- **Ancrage** : chaque jour, l'empreinte de tête de la chaîne est déposée hors
-  de la base (fichier daté, courriel à une boîte de contrôle). L'auditeur peut
-  confronter un ancrage de sa propre boîte à la chaîne courante : si la base
-  avait été remplacée, l'écart apparaîtrait.
+  précédente. Un auditeur peut demander une vérification à l'écran (« Preuves
+  et audit, Journal d'audit ») ou en ligne de commande (`registris verifier`).
+  `registris` désigne `node src/cli.js`, lancé avec la configuration de
+  l'installation : voir la section
+  [Ligne de commande](../README.md#ligne-de-commande) du README.
+- **Ancrage** : l'empreinte de tête de la chaîne est déposée hors de la base
+  (fichier daté, courriel à une boîte de contrôle) par `registris ancrer`, à
+  lancer chaque jour. L'installation Linux le planifie d'office ; sous Windows
+  et avec Docker, la tâche est à créer. L'auditeur peut confronter un ancrage de
+  sa propre boîte à la chaîne courante : si la base avait été remplacée, l'écart
+  apparaîtrait.
 - **Contrôle complet daté** : la page d'audit indique la date du dernier
   contrôle complet et permet d'en lancer un devant l'auditeur. Entre deux
   contrôles, l'affichage repart du dernier point de reprise pour rester

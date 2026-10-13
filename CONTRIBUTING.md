@@ -33,7 +33,7 @@ démonstration (`npm run demo`).
 
 ```bash
 git clone https://github.com/Irreductix/Registris.git
-cd registris
+cd Registris
 npm install
 npm run verifier      # style (ESLint), types (TypeScript sur le JavaScript) et tests
 npm run demo && npm start
@@ -41,7 +41,8 @@ npm run demo && npm start
 
 Conventions :
 
-- Node.js 22 ou plus récent, modules ES, pas de transpilation.
+- Node.js 22.13 ou plus récent (24 LTS conseillé), modules ES, pas de
+  transpilation.
 - Le code et les commentaires sont en français : c'est le vocabulaire du
   terrain (UF, habilitation, référent, CAC) et le public visé.
 - Aucune dépendance native ; réfléchir à deux fois avant d'ajouter une
