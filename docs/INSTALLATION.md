@@ -179,9 +179,9 @@ docker compose up -d
 docker compose exec registris node src/cli.js utilisateur admin admin "Administrateur"
 ```
 
-L'image est construite par la release sous `ghcr.io/irreductix/registris` à
-partir de la version qui suit la 0.5.0 ; la 0.5.0 reste sous
-`ghcr.io/quentincazier/registris`, d'où le fichier compose. Elle
+L'image est construite par la release sous `ghcr.io/irreductix/registris`
+depuis la 0.5.1 ; les versions 0.3.0 à 0.5.0 restent sous
+`ghcr.io/quentincazier/registris`. Elle
 tourne sans privilège, expose `/sante` pour la supervision et garde la base, les
 pièces et le secret de session dans le volume `registris-donnees`. Par défaut
 le port n'est publié que sur l'adresse locale, pour un reverse-proxy HTTPS de
