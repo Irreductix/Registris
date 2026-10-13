@@ -22,8 +22,11 @@ respectés.
 
 ## Ce qui est vérifié automatiquement, à chaque exécution des tests
 
-Le fichier `tests/accessibilite.test.js` parcourt toutes les pages de
-l'application (vingt-sept à ce jour), authentifié, et vérifie :
+Le fichier `tests/accessibilite.test.js` parcourt, authentifié en
+administrateur, un échantillon de trente-cinq adresses qui couvre chaque écran
+principal, plus la page de connexion. Les pages de détail (campagne de revue,
+rapprochement, application d'un pack) et de modification (application, compte,
+pack) ne sont pas encore couvertes. Le test vérifie :
 
 | Contrôle | Critères RGAA visés |
 |---|---|
@@ -95,9 +98,9 @@ Cette liste est aussi importante que la précédente.
   listes. La taille de police de base est de 14 px, et tout est exprimé en
   unités relatives : le zoom du navigateur fonctionne, mais un audit devra
   confirmer le comportement à 200 %.
-- **Aucun script bloquant.** L'application fonctionne sans JavaScript, à
-  l'exception d'une confirmation avant les actions destructrices. Rien ne dépend
-  d'un pointeur ou d'un survol.
+- **Aucun script bloquant.** L'application fonctionne sans JavaScript pour
+  l'essentiel ; la demande pour un autre agent et la confirmation des actions
+  destructrices en ont besoin. Rien ne dépend d'un pointeur ou d'un survol.
 
 ## Modèle de déclaration pour l'établissement
 

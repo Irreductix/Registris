@@ -7,13 +7,17 @@ Directory, sauvegardée.
 Les installateurs de l'archive de release (Windows, Linux, Docker, voir
 [INSTALLATION.md](INSTALLATION.md)) font les étapes 1, 2, 3 et 6 en une fois.
 Ce guide détaille chaque réglage, pour les adapter ou les faire à la main.
+Les commandes `registris` qu'il cite désignent `node src/cli.js`, lancé avec la
+configuration de l'installation : l'appel exact pour chaque voie est dans la
+section [Ligne de commande](../README.md#ligne-de-commande) du README.
 
 ## 1. Où l'installer
 
 - Une petite machine virtuelle Linux ou Windows suffit (1 vCPU, 1 Go de RAM,
   quelques Go de disque selon le volume de pièces).
-- Node.js 22 ou plus récent (l'installateur Windows l'embarque). Aucun autre
-  service : pas de base de données à installer, pas de compilateur.
+- Node.js 22.13 ou plus récent, 24 LTS conseillé (l'installateur Windows
+  l'embarque). Aucun autre service : pas de base de données à installer, pas
+  de compilateur.
 - Le fichier SQLite et le dossier des preuves doivent être sur un **disque local
   de la VM**, jamais sur un partage réseau (risque de corruption).
 - Tenue en charge vérifiée à chaque modification par l'intégration continue
@@ -23,7 +27,7 @@ Ce guide détaille chaque réglage, pour les adapter ou les faire à la main.
 
 ```bash
 git clone https://github.com/Irreductix/Registris.git
-cd registris
+cd Registris
 npm install --omit=dev
 cp .env.example .env
 ```
@@ -342,6 +346,11 @@ compte.
 | chaque jour ouvré | `registris relancer` | ne rien laisser dormir dans la file |
 | chaque mois | `registris purger` | appliquer les durées de conservation, voir [RGPD.md](RGPD.md) |
 | chaque trimestre | rapprochement de chaque application sensible, depuis l'écran | prouver que le registre dit vrai |
+
+L'installation Linux planifie d'office les quatre premières, chaque nuit à 2 h
+(minuterie `registris-entretien`). Aucune installation ne planifie la purge, et
+sous Windows comme avec Docker, aucune de ces tâches n'est créée :
+planifiez-les vous-même.
 
 Le serveur fait lui-même, toutes les heures, l'entretien courant : il demande la
 fermeture des accès temporaires arrivés à échéance et, une fois par jour quand un

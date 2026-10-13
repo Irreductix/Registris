@@ -42,13 +42,18 @@ son commissaire aux comptes, puis la règle dans la configuration :
 CONSERVATION_ANNEES=5
 ```
 
-La purge se lance à la main ou par une tâche planifiée, de préférence après la
-sauvegarde de la nuit. Elle se simule d'abord :
+La purge se lance à la main ou par une tâche planifiée, chaque mois par
+exemple, de préférence après la sauvegarde de la nuit : aucune installation ne
+la planifie d'office. Elle se simule d'abord :
 
 ```bash
 registris purger --simuler
 registris purger
 ```
+
+`registris` désigne ici `node src/cli.js`, lancé avec la configuration de
+l'installation : l'appel exact pour chaque voie est dans la section
+[Ligne de commande](../README.md#ligne-de-commande) du README.
 
 Chaque purge est inscrite au journal d'audit avec son bilan. Une pièce purgée
 reste listée dans la fiche avec la mention « supprimée, durée de conservation

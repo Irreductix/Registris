@@ -12,9 +12,9 @@ obtenu quel accès, sur quel logiciel, sur quelles unités fonctionnelles, quand
 dispersée dans des mois de courriels et de tableurs.
 
 Registris en fait un registre unique, recherchable, avec les pièces
-justificatives attachées et un journal infalsifiable. Quand l'auditeur transmet
-sa liste de matricules échantillonnés, le dossier de preuves complet sort en un
-clic.
+justificatives attachées et un journal chaîné dont toute retouche se détecte.
+Quand l'auditeur transmet sa liste de matricules échantillonnés, le dossier de
+preuves complet sort en un clic.
 
 > Logiciel libre (licence EUPL-1.2). Fonctionne entièrement sur votre réseau,
 > sans aucun service externe. Présentation en ligne :
@@ -134,13 +134,18 @@ La revue périodique : chaque référent statue sur ses applications, et le rapp
 - **Journal d'audit chaîné et ancré** : chaque action (connexion, création,
   validation, dépôt ou consultation d'une preuve, export) est scellée par
   l'empreinte de l'entrée précédente. Toute modification a posteriori est
-  détectée, et l'ancrage quotidien de la tête de chaîne hors de la base
-  (fichier, courriel) rend détectable un remplacement de la base entière.
+  détectée, et l'ancrage de la tête de chaîne hors de la base (fichier,
+  courriel), à lancer chaque jour, rend détectable un remplacement de la base
+  entière. L'installation Linux planifie d'office l'ancrage, la sauvegarde et la
+  vérification ; sous Windows et avec Docker, ces tâches sont à planifier
+  soi-même.
 - **Sauvegarde et restauration** en une commande, avec manifeste d'empreintes
   et contrôle d'une archive sans rien écrire.
-- **Durées de conservation** : au-delà de la durée fixée, l'identité des agents
-  partis est effacée et leurs pièces supprimées ; fiche pour le registre des
-  traitements prête pour le DPO ([docs/RGPD.md](docs/RGPD.md)).
+- **Durées de conservation** : au-delà de la durée fixée, `registris purger`
+  efface l'identité des agents partis et supprime leurs pièces. Aucune
+  installation ne planifie cette commande : elle est à planifier, chaque mois
+  par exemple. Fiche pour le registre des traitements prête pour le DPO
+  ([docs/RGPD.md](docs/RGPD.md)).
 - **Authentification Active Directory** (bind LDAPS, rôles par groupes AD,
   groupes imbriqués en option, compte local de secours quand l'annuaire est
   injoignable) ou comptes locaux ; notifications par le relais SMTP interne.
@@ -159,19 +164,22 @@ La revue périodique : chaque référent statue sur ses applications, et le rapp
 ## Installer
 
 Chaque [release](https://github.com/Irreductix/Registris/releases) fournit
-un installateur Windows complet (assistant, Node.js et service compris, rien à
-installer avant), une archive Linux avec les dépendances et un script systemd,
-et une image Docker. Le serveur n'a pas besoin d'accès à internet. Tout est
-décrit dans [docs/INSTALLATION.md](docs/INSTALLATION.md).
+une archive Linux avec les dépendances et un script systemd, une image Docker
+et, depuis la 0.3.1, un installateur Windows complet (assistant, Node.js et
+service compris, rien à installer avant). Avec l'installateur Windows ou
+l'archive Linux, le serveur n'a besoin ni d'accès à internet ni de `npm` ; avec
+Docker, l'hôte doit pouvoir tirer l'image depuis ghcr.io ou depuis un registre
+interne. Tout est décrit dans [docs/INSTALLATION.md](docs/INSTALLATION.md).
 
 ## Essayer en cinq minutes
 
-Prérequis : [Node.js](https://nodejs.org) 22 ou plus récent. Aucune base de
-données à installer (SQLite intégré), aucun compilateur.
+Prérequis : [Node.js](https://nodejs.org) 22.13 ou plus récent (24 LTS
+conseillé). Aucune base de données à installer (SQLite intégré), aucun
+compilateur.
 
 ```bash
 git clone https://github.com/Irreductix/Registris.git
-cd registris
+cd Registris
 npm install
 npm run demo      # base de démonstration (données fictives)
 npm start         # http://127.0.0.1:3000
@@ -197,6 +205,29 @@ l'est pas, et le modèle de déclaration à compléter par l'établissement).
 
 ## Ligne de commande
 
+`registris` désigne ici `node src/cli.js`, lancé avec la configuration de
+l'installation : aucun installateur ne crée de commande `registris`. L'appel
+réel, avec les chemins par défaut, par exemple pour `verifier` :
+
+```bash
+# Dépôt cloné : depuis son dossier, configuration lue dans .env
+node src/cli.js verifier
+
+# Linux (installer.sh) : utilisateur et configuration du service systemd
+sudo -u registris env REGISTRIS_CONFIG=/etc/registris/registris.env node /opt/registris/src/cli.js verifier
+
+# Docker : depuis le dossier du fichier Compose, service registris
+docker compose exec registris node src/cli.js verifier
+```
+
+```powershell
+# Windows (installateur ou archive) : PowerShell ouvert en administrateur
+$env:REGISTRIS_CONFIG = 'C:\ProgramData\Registris\registris.env'
+& 'C:\Program Files\Registris\node\node.exe' 'C:\Program Files\Registris\src\cli.js' verifier
+```
+
+Les commandes :
+
 ```
 registris init                     crée la base si besoin
 registris servir                   démarre le serveur (défaut)
@@ -205,11 +236,15 @@ registris utilisateur <login> <rôle> <nom>
 registris ufs <fichier.csv>        importe un référentiel d'UF (code;libelle)
 registris verifier                 vérifie la chaîne d'audit, ses ancrages et l'intégrité du coffre
 registris ancrer                   dépose l'empreinte de tête de la chaîne hors de la base (fichier, courriel)
+registris relancer [--simuler]     relance les demandes en attente depuis plus de RELANCE_JOURS
+registris entretien                demande la fermeture des accès temporaires échus (le serveur le fait seul chaque heure)
+registris purger [--simuler]       applique CONSERVATION_ANNEES : identité des agents partis effacée, pièces supprimées
 registris sauvegarder [dossier]    archive ZIP autoportante : base, pièces, logos, ancrages, manifeste
 registris restaurer <zip> [--verifier] [--forcer]
                                            contrôle une archive, ou la redéploie sur une installation arrêtée
 registris tester-ldap <login>      diagnostic pas à pas de la connexion à l'annuaire
-registris demo                     charge le jeu de démonstration
+registris verifier-config [--json] contrôle la configuration : données, HTTPS, annuaire, courriels
+registris demo                     charge le jeu de démonstration (données fictives)
 ```
 
 ## Aux couleurs de l'établissement
@@ -243,8 +278,9 @@ anomalies (chaîne rompue, pièce altérée). Détails dans
 - **Journal chaîné** : table `journal_audit`, chaque ligne contient le hash de
   la précédente ; `registris verifier` recalcule toute la chaîne.
 - Dépendances : `express`, `express-session`, `multer` (téléversement),
-  `archiver` (ZIP), `ldap-authentication` (AD), `nodemailer` (SMTP). Aucune
-  dépendance native.
+  `archiver` (ZIP), `ldap-authentication` (AD), `ldapts` (annuaire : groupes
+  imbriqués, recherche d'agents), `nodemailer` (SMTP). Aucune dépendance
+  native.
 
 ```
 src/
@@ -284,12 +320,18 @@ l'ordre où elles sont déclarées : `/habilitations/nouvelle` doit donc passer 
 En-têtes de sécurité (CSP, X-Frame-Options, nosniff), cookies de session
 `httpOnly` et `sameSite`, sessions en base, jeton CSRF sur chaque formulaire,
 blocage temporaire après cinq échecs de connexion, contrôle des droits sur
-chaque route, validation des fichiers téléversés, refus de démarrer en
-production sans secret de session.
-Le chiffrement TLS est confié à un reverse-proxy (voir la documentation de
-déploiement). Signalement d'une faille : voir [SECURITY.md](SECURITY.md).
-Questions avant d'installer : [docs/RSSI.md](docs/RSSI.md), ou
-<contact@irreductix.fr>.
+chaque route, validation des fichiers téléversés. Sans `SESSION_SECRET`, un
+secret de session est généré au premier démarrage et conservé à côté de la
+base ; le démarrage n'est refusé que sur une configuration inutilisable
+(certificat ou clé TLS introuvable, autorité de l'annuaire introuvable,
+annuaire incomplet, mode d'authentification inconnu, ou, en production, secret
+impossible à conserver).
+Le chiffrement TLS est porté par l'application (certificat PEM ou PFX,
+auto-signé par défaut avec les installateurs Windows et Linux, à remplacer par
+celui de l'établissement) ou par un reverse-proxy, recommandé pour une
+exposition large : voir [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md).
+Signalement d'une faille : voir [SECURITY.md](SECURITY.md). Questions avant
+d'installer : [docs/RSSI.md](docs/RSSI.md), ou <contact@irreductix.fr>.
 
 ## Contribuer
 

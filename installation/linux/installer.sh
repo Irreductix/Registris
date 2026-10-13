@@ -49,9 +49,10 @@ SOURCE=$(cd "$(dirname "$0")/../.." && pwd)
 [ -f "$SOURCE/package.json" ] || echec "package.json introuvable dans $SOURCE : lancez ce script depuis l'archive décompressée."
 [ -d "$SOURCE/node_modules" ] || echec "node_modules absent : utilisez l'archive de release (dépendances incluses), pas le dépôt git."
 if [ "$SANS_SERVICE" = 0 ] && [ "$(id -u)" != 0 ]; then echec "à lancer en root (sudo), ou avec --sans-service."; fi
-command -v node >/dev/null || echec "Node.js est absent : installez Node.js 22 LTS ou plus récent (https://nodejs.org, ou le paquet de votre distribution)."
-MAJEURE=$(node --version | sed 's/^v//; s/\..*//')
-[ "$MAJEURE" -ge 22 ] || echec "Node.js $MAJEURE trouvé, version 22 minimum requise."
+command -v node >/dev/null || echec "Node.js est absent : installez Node.js 22.13 ou plus récent, 24 LTS conseillé (https://nodejs.org, ou le paquet de votre distribution)."
+# node:sqlite n'est utilisable sans option qu'à partir de Node.js 22.13.
+node -e 'const [a, b] = process.versions.node.split(".").map(Number); process.exit(a > 22 || (a === 22 && b >= 13) ? 0 : 1)' \
+  || echec "Node.js $(node --version) trouvé, version 22.13 minimum requise."
 VERSION=$(node -p "require('$SOURCE/package.json').version")
 MISE_A_JOUR=0
 [ -f "$CONFIG" ] && MISE_A_JOUR=1

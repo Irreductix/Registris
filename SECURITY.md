@@ -84,11 +84,15 @@ mainteneurs, mais un ticket ici pour demander la mise à jour est bienvenu).
   de reprise n'apparaît plus à l'écran : elle est détectée au contrôle complet
   suivant, `registris verifier`, à planifier quotidiennement, et par les
   ancrages. Un contrôle complet peut aussi être lancé depuis la page d'audit.
+  L'appel réel de `registris` selon l'installation est donné dans la section
+  [Ligne de commande](README.md#ligne-de-commande) du README.
 - L'ancrage est un dépôt hors base, pas un horodatage tiers qualifié. Sa
   force dépend de l'endroit où l'on conserve les fichiers ou les courriels
   d'ancrage : un autre disque, un autre service, une autre équipe.
-- Le chiffrement TLS n'est pas géré par l'application : un reverse-proxy est
-  indispensable (voir `docs/DEPLOIEMENT.md`).
+- Le chiffrement TLS est porté par l'application (certificat PEM ou PFX,
+  auto-signé par défaut avec les installateurs Windows et Linux, à remplacer par
+  celui de l'établissement) ou par un reverse-proxy, recommandé pour une
+  exposition large (voir `docs/DEPLOIEMENT.md`).
 - Les pièces de preuve sont stockées en clair sur le disque de la machine, sous
   un nom neutre. Le chiffrement au repos relève du système (disque chiffré).
 - La limitation de débit ne couvre que la connexion. Les autres routes exigent

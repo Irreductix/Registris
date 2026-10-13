@@ -46,9 +46,13 @@ et l'information des agents sont dans [RGPD.md](RGPD.md).
 ## Où sont les secrets ?
 
 Dans un seul fichier de configuration, hors du dossier de l'application :
-`registris.env` (sous Windows, `C:\ProgramData\Registris\registris.env`, lisible
-par le compte de service seulement). Il contient le mot de passe du compte de
-service de l'annuaire, celui du relais SMTP, et le secret de session.
+`registris.env`. Sous Windows, il est dans `C:\ProgramData\Registris` et n'est
+ouvert qu'aux administrateurs, au compte qui a installé et, en lecture seule, au
+compte du service. Depuis la 0.5.1, ce dossier n'hérite plus des droits de
+ProgramData : seuls le système, le groupe Administrateurs, le compte du service
+LocalService (lecture et écriture) et le compte qui a installé y ont accès, et
+une mise à jour applique la correction. Le fichier contient le mot de passe du
+compte de service de l'annuaire, celui du relais SMTP, et le secret de session.
 
 - Le secret de session est fourni par `SESSION_SECRET` ou généré au premier
   démarrage dans `session.secret`, à côté de la base, en droits `0600`
@@ -69,7 +73,10 @@ contrôleurs, utilisateurs), groupes imbriqués en option. Le certificat de
 l'autorité interne se déclare dans la configuration. Tout est détaillé dans
 [DEPLOIEMENT.md, section 4](DEPLOIEMENT.md#4-active-directory), et
 `registris verifier-config` teste le compte de service, la base de recherche
-et chaque groupe avant la mise en service.
+et chaque groupe avant la mise en service. `registris` désigne ici
+`node src/cli.js`, lancé avec la configuration de l'installation : l'appel
+exact pour chaque voie est dans la section
+[Ligne de commande](../README.md#ligne-de-commande) du README.
 
 Les comptes locaux servent à démarrer, à tester, et de secours si l'annuaire
 est injoignable ; en mode annuaire, c'est le seul cas où ils fonctionnent.
@@ -133,8 +140,13 @@ Deux façons : un reverse-proxy devant l'application, qui porte le certificat
 ou le TLS direct avec un certificat PFX ou PEM. L'installateur Windows génère
 un certificat auto-signé pour démarrer ou prend le vôtre. HSTS est envoyé dès
 que le cookie est sécurisé. Une écoute sur le réseau sans TLS déclenche un
-avertissement explicite au démarrage et dans `registris verifier-config` ; le
-refus de démarrer en production est réservé à l'absence de secret de session.
+avertissement explicite au démarrage et dans `registris verifier-config`, sans
+bloquer. Le démarrage n'est refusé que sur une configuration inutilisable :
+certificat ou clé TLS introuvable, autorité de l'annuaire introuvable, annuaire
+incomplet, mode d'authentification inconnu, ou, en production, secret de
+session impossible à conserver. Sans `SESSION_SECRET`, un secret est généré et
+conservé au premier démarrage ([src/config.js](../src/config.js),
+[src/cli.js](../src/cli.js)).
 
 ## Quelle surface d'attaque côté web ?
 
@@ -161,14 +173,18 @@ Sept dépendances d'exécution (Express, express-session, multer, archiver,
 nodemailer, ldapts, ldap-authentication), listées dans `package.json`, figées
 dans `package-lock.json`. À chaque version, l'intégration continue :
 
-- exécute `npm audit` sur les dépendances de production et échoue au niveau
-  « high » ;
-- construit l'archive, l'installateur Windows et l'image Docker **à partir du
-  tag signé**, jamais depuis un poste ;
+- exécute `npm audit` sur les dépendances de production : depuis la 0.5.1, un
+  avis de niveau « high » ou plus arrête la release, et rien n'est publié ;
+- construit l'archive, puis l'installateur Windows et l'image Docker, **à
+  partir du tag, signé depuis la 0.4.0**, jamais depuis un poste ;
 - publie une nomenclature logicielle CycloneDX (`registris-x.y.z.cdx.json`) et
   les sommes `SHA256SUMS` ;
 - vérifie le Node.js embarqué pour Windows contre les sommes publiées par
   nodejs.org, et le lanceur de service WinSW par empreinte.
+
+La 0.5.0 a été publiée alors que `npm audit` échouait dans les tests : elle
+embarque proxy-addr 2.0.7, visé par l'avis GHSA-jqcg-44mw-7w3h. La 0.5.1 passe
+à proxy-addr 2.0.8, qui corrige la faille.
 
 Dependabot ouvre une demande à chaque avis de sécurité sur une dépendance.
 L'installateur Windows n'est pas signé par un certificat d'éditeur : SmartScreen
@@ -179,12 +195,16 @@ Docker s'exécute sans privilège.
 
 Sous Windows, on relance l'installateur de la nouvelle version : il arrête le
 service, remplace l'application, garde les données et la configuration,
-redémarre et contrôle. Ailleurs, `git pull`, `npm install --omit=dev`,
-redémarrage du service. Le schéma de base se met à jour seul, par ajouts
-seulement ; chaque version est testée en ouvrant une base de la version
-précédente (voir les revues de version dans [SECURITY.md](../SECURITY.md)).
-Les changements sont dans [CHANGELOG.md](../CHANGELOG.md), les versions sont
-des tags signés.
+redémarre et contrôle. Sous Linux, on décompresse la nouvelle archive et on
+relance `installation/linux/installer.sh`. Avec Docker, on change la version de
+l'image dans le fichier Compose et on relance `docker compose up -d`. Une
+installation faite par `git clone` se met à jour par `git pull` puis
+`npm install --omit=dev`, et un redémarrage du service. Le schéma de base se
+met à jour seul, par ajouts seulement ; chaque version est testée en ouvrant une
+base de la version précédente (voir les revues de version dans
+[SECURITY.md](../SECURITY.md)). Les changements sont dans
+[CHANGELOG.md](../CHANGELOG.md), les versions sont des tags signés depuis la
+0.4.0.
 
 ## Sauvegardes et restauration ?
 

@@ -4,12 +4,14 @@ Trois voies, selon le serveur dont dispose la DSI. Toutes partent de la
 [dernière release](https://github.com/Irreductix/Registris/releases) : une
 archive qui contient l'application **avec ses dépendances**, les installateurs,
 la documentation, une nomenclature logicielle (CycloneDX) et les sommes SHA-256.
-Le serveur n'a besoin ni d'accès à internet ni de `npm`.
+Avec l'installateur Windows ou l'archive Linux, le serveur n'a besoin ni d'accès
+à internet ni de `npm` ; avec Docker, l'hôte doit pouvoir tirer l'image depuis
+ghcr.io ou depuis un registre interne.
 
 | Serveur | Voie | Prérequis |
 |---|---|---|
 | Windows Server | `registris-x.y.z-installateur.exe` (assistant) ou l'archive `-windows.zip` avec `installation\windows\installer.cmd` | aucun : Node.js est embarqué |
-| Linux avec systemd | `sudo installation/linux/installer.sh` depuis le `.tar.gz` | Node.js 22 ou plus récent, `openssl` pour le certificat auto-signé |
+| Linux avec systemd | `sudo installation/linux/installer.sh` depuis le `.tar.gz` | Node.js 22.13 ou plus récent (24 LTS conseillé), `openssl` pour le certificat auto-signé par défaut, `curl` pour le contrôle final |
 | Docker ou Proxmox | `installation/docker/docker-compose.yml` | Docker avec Compose |
 
 Pour essayer sur un poste sans rien installer d'autre que Node.js, le dépôt
@@ -96,7 +98,12 @@ s'affiche. L'installateur a :
    - copié l'application dans `C:\Program Files\Registris` ;
    - créé les données dans `C:\ProgramData\Registris` (base, pièces, ancrages,
      sauvegardes, journaux) et la configuration `registris.env` au même
-     endroit, lisibles seulement par les administrateurs et le service ;
+     endroit. Depuis la 0.5.1, ce dossier n'hérite plus des droits de
+     ProgramData : seuls le système, le groupe Administrateurs, le compte du
+     service LocalService (lecture et écriture) et le compte qui a installé y
+     ont accès, et une mise à jour applique la correction. `registris.env`,
+     lui, n'est ouvert qu'aux administrateurs, au compte qui a installé et, en
+     lecture seule, au service ;
    - généré un certificat auto-signé et servi l'application en HTTPS sur toutes
      les interfaces (le navigateur avertit tant que le certificat n'est pas
      celui de votre PKI) ;
@@ -124,8 +131,11 @@ le mode sans HTTPS derrière un reverse-proxy.
 Mise à jour : décompressez la nouvelle archive et relancez `installer.cmd`. Il
 arrête le service, remplace l'application, conserve la configuration et les
 données, redémarre. Le schéma de la base migre seul au démarrage. Faites une
-sauvegarde avant (`registris sauvegarder`). Node.js suit les releases de
-Registris : la mise à jour de l'un met à jour l'autre.
+sauvegarde avant (`registris sauvegarder`). Ici comme ailleurs, `registris`
+désigne `node src/cli.js` lancé avec la configuration de l'installation :
+l'appel exact pour chaque voie est dans la section
+[Ligne de commande](../README.md#ligne-de-commande) du README. Node.js suit les
+releases de Registris : la mise à jour de l'un met à jour l'autre.
 
 Désinstallation : `installation\windows\desinstaller.ps1` retire le service, la
 règle de pare-feu et l'application ; les données restent, sauf avec
@@ -134,7 +144,7 @@ règle de pare-feu et l'application ; les données restent, sauf avec
 Tâches planifiées à créer ensuite (Planificateur de tâches, compte LocalService,
 variable d'environnement `REGISTRIS_CONFIG` pointant sur `registris.env`) :
 `sauvegarder` et `ancrer` chaque nuit, `verifier` chaque jour, `relancer` chaque
-jour ouvré. Voir [DEPLOIEMENT.md](DEPLOIEMENT.md).
+jour ouvré, `purger` chaque mois. Voir [DEPLOIEMENT.md](DEPLOIEMENT.md).
 
 ## Linux avec systemd
 
@@ -151,7 +161,9 @@ Le script crée l'utilisateur système `registris`, copie l'application dans
 reverse-proxy), crée le compte administrateur, installe le service `registris`
 (durci : système en lecture seule, écriture limitée aux données) et la minuterie
 `registris-entretien` qui, chaque nuit à 2 h, sauvegarde, ancre la chaîne
-d'audit, relance les demandes en attente et vérifie l'intégrité.
+d'audit, relance les demandes en attente et vérifie l'intégrité. La purge des
+durées de conservation (`purger`) n'en fait pas partie : elle est à planifier,
+chaque mois par exemple.
 
 Mise à jour : décompressez la nouvelle archive et relancez le script.
 Désinstallation : `sudo installation/linux/desinstaller.sh`, données conservées
@@ -174,7 +186,10 @@ tourne sans privilège, expose `/sante` pour la supervision et garde la base, le
 pièces et le secret de session dans le volume `registris-donnees`. Par défaut
 le port n'est publié que sur l'adresse locale, pour un reverse-proxy HTTPS de
 l'hôte ; avec un certificat monté dans le volume et `TLS_*` renseignés, publiez
-le port sur le réseau.
+le port sur le réseau. Le conteneur ne planifie ni la sauvegarde, ni l'ancrage,
+ni la vérification, ni les relances, ni la purge : planifiez-les sur l'hôte,
+avec `docker compose exec registris node src/cli.js <commande>` (voir
+[DEPLOIEMENT.md](DEPLOIEMENT.md)).
 
 Pour un essai avec les données de démonstration :
 

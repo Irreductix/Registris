@@ -167,6 +167,12 @@ jobs:
           if ($verif -notmatch 'ECHEC\s+Courriels') { throw "le relais SMTP injoignable aurait dû être signalé" }
           if ($verif -notmatch 'OK\s+HTTPS') { throw "le certificat aurait dû être contrôlé" }
           if (-not (Get-NetFirewallRule -DisplayName Registris -ErrorAction SilentlyContinue)) { throw "règle de pare-feu absente" }
+          # Données et configuration fermées aux utilisateurs du serveur : ni Tout le monde, ni Utilisateurs authentifiés, ni Utilisateurs.
+          $ouverts = 'S-1-1-0', 'S-1-5-11', 'S-1-5-32-545'
+          foreach ($chemin in 'C:\ProgramData\Registris', 'C:\ProgramData\Registris\registris.db', 'C:\ProgramData\Registris\registris.env', 'C:\ProgramData\Registris\preuves') {
+            $sids = foreach ($regle in (Get-Acl $chemin).Access) { $regle.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value }
+            if ($sids | Where-Object { $ouverts -contains $_ }) { throw "$chemin est lisible par les utilisateurs du serveur" }
+          }
 
       - name: Essai de mise à jour et de désinstallation silencieuses
         timeout-minutes: 10

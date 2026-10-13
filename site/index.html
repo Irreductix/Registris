@@ -177,8 +177,8 @@ footer .in{max-width:1100px;margin:0 auto;padding:18px 22px;font-size:13px;color
       <div><h3>Rapprochement</h3><p>L'extraction des comptes d'un logiciel confrontée au registre : cinq constats, du révoqué encore présent au compte non déclaré, chaque écart soldé et tracé.</p></div>
       <div><h3>Indicateurs de délai</h3><p>Du dépôt à l'ouverture, du signalement à la fermeture réelle, par application, en médiane et « neuf sur dix en moins de », avec les volumes mensuels.</p></div>
       <div><h3>Dossier de preuves</h3><p>On colle les matricules échantillonnés, on obtient un ZIP horodaté : synthèse imprimable, tableau CSV, manifeste des empreintes, pièces classées par matricule.</p></div>
-      <div><h3>Journal chaîné et ancré</h3><p>Chaque écriture scelle la précédente par son empreinte ; la tête de chaîne est déposée chaque jour hors de la base. Une retouche ou un remplacement de la base se voit.</p></div>
-      <div><h3>API en lecture, RGPD</h3><p>GLPI ou la supervision lisent la file avec un jeton révocable. Au terme de la durée de conservation, l'identité des agents partis est effacée ; la fiche du registre des traitements est fournie.</p></div>
+      <div><h3>Journal chaîné et ancré</h3><p>Chaque écriture scelle la précédente par son empreinte ; une tâche quotidienne, planifiée d'office par l'installation Linux et à créer ailleurs, dépose la tête de chaîne hors de la base. Une retouche ou un remplacement de la base se voit.</p></div>
+      <div><h3>API en lecture, RGPD</h3><p>GLPI ou la supervision lisent la file avec un jeton révocable. Au terme de la durée de conservation, une commande à planifier, chaque mois par exemple, efface l'identité des agents partis ; la fiche du registre des traitements est fournie.</p></div>
     </div>
   </section>
 
@@ -206,16 +206,16 @@ footer .in{max-width:1100px;margin:0 auto;padding:18px 22px;font-size:13px;color
       <table>
         <caption>Caractéristiques techniques de Registris</caption>
         <tbody>
-          <tr><th scope="row">Prérequis</th><td>Aucun sous Windows : l'installateur embarque Node.js. Sous Linux, Node.js 22 ou plus récent et rien d'autre : SQLite est intégré, aucun compilateur, aucune base de données à installer. Les archives contiennent les dépendances : le serveur n'a besoin ni d'internet ni de <code>npm</code>. Ou Docker.</td></tr>
+          <tr><th scope="row">Prérequis</th><td>Aucun sous Windows : l'installateur embarque Node.js. Sous Linux, Node.js 22.13 ou plus récent (24 LTS conseillé), <code>openssl</code> pour le certificat auto-signé par défaut et <code>curl</code> pour le contrôle final : SQLite est intégré, aucun compilateur, aucune base de données à installer. Les archives contiennent les dépendances : le serveur n'a besoin ni d'internet ni de <code>npm</code>. Ou Docker, dont l'hôte doit pouvoir tirer l'image depuis ghcr.io ou un registre interne.</td></tr>
           <tr><th scope="row">Authentification</th><td>Active Directory par LDAPS, rôles déduits des groupes, groupes imbriqués en option, compte local de secours accepté seulement quand l'annuaire est injoignable. Ou comptes locaux.</td></tr>
           <tr><th scope="row">Données</th><td>Un fichier SQLite et un dossier de pièces sur le disque local. Sauvegarde et restauration en une commande, avec manifeste d'empreintes. Aucune donnée patient.</td></tr>
           <tr><th scope="row">Exposition</th><td>HTTPS direct avec un certificat PEM ou PFX de votre PKI (auto-signé à défaut), ou HTTP local derrière le reverse-proxy de l'établissement. Aucun appel sortant : polices, scripts et images sont servis par l'application.</td></tr>
-          <tr><th scope="row">Exploitation</th><td>Service Windows ou service systemd durci, configuration hors du dossier de l'application pour des mises à jour sans retouche, sonde <code>/sante</code> pour la supervision, sauvegarde et ancrage planifiés.</td></tr>
-          <tr><th scope="row">Livraison</th><td>Chaque release publie l'installateur Windows, les archives, leurs sommes SHA-256, une nomenclature logicielle CycloneDX et l'image Docker, construits et testés par l'intégration continue, installation Windows comprise.</td></tr>
+          <tr><th scope="row">Exploitation</th><td>Service Windows ou service systemd durci, configuration hors du dossier de l'application pour des mises à jour sans retouche, sonde <code>/sante</code> pour la supervision. Sauvegarde, ancrage et vérification planifiés d'office sous Linux ; sous Windows et avec Docker, ces tâches sont à planifier soi-même.</td></tr>
+          <tr><th scope="row">Livraison</th><td>Chaque release publie les archives, leurs sommes SHA-256, une nomenclature logicielle CycloneDX, l'image Docker et, depuis la 0.3.1, l'installateur Windows, construits et testés par l'intégration continue, installation Windows comprise.</td></tr>
           <tr><th scope="row">Notifications</th><td>Relais SMTP interne, facultatif. Relances des demandes en attente par une tâche planifiée.</td></tr>
           <tr><th scope="row">Sécurité</th><td>Politique de sécurité de contenu avec nonce, jeton anti-CSRF, sessions en base, blocage après cinq échecs, pièces validées par signature binaire, exports CSV neutralisés, journal chaîné.</td></tr>
-          <tr><th scope="row">Accessibilité</th><td>Contrôles automatiques sur toutes les pages à chaque exécution des tests, documentation de ce qui est vérifié et de ce qui ne l'est pas, modèle de déclaration à compléter par l'établissement.</td></tr>
-          <tr><th scope="row">Licence</th><td>EUPL-1.2, compatible avec la politique logiciels libres de l'État. Six dépendances, aucune native.</td></tr>
+          <tr><th scope="row">Accessibilité</th><td>Contrôles automatiques sur chaque écran principal à chaque exécution des tests, documentation de ce qui est vérifié et de ce qui ne l'est pas, modèle de déclaration à compléter par l'établissement.</td></tr>
+          <tr><th scope="row">Licence</th><td>EUPL-1.2, compatible avec la politique logiciels libres de l'État. Sept dépendances, aucune native.</td></tr>
         </tbody>
       </table>
     </div>
@@ -273,7 +273,7 @@ docker compose exec registris \
     <p class="plomb" style="font-size:15px">Pour découvrir l'outil avec des données fictives, le dépôt et Node.js suffisent.</p>
     <div class="deux">
       <div>
-        <pre><span class="c"># Node.js 22 ou plus récent</span>
+        <pre><span class="c"># Node.js 22.13 ou plus récent (24 LTS conseillé)</span>
 git clone https://github.com/Irreductix/Registris.git
 cd Registris
 npm install
