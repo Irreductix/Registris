@@ -45,7 +45,7 @@ MinVersion=10.0
 Name: "fr"; MessagesFile: "compiler:Languages\French.isl"
 
 [Messages]
-fr.WelcomeLabel2=Ce programme installe Registris {#Version} sur cet ordinateur : l'application, Node.js et le service Windows. Il règle aussi l'établissement, le HTTPS, l'Active Directory, les courriels et la conservation des données, puis les contrôle. Rien d'autre n'est requis, et aucun fichier n'est à modifier ensuite.
+fr.WelcomeLabel2=Ce programme installe Registris {#Version} sur cet ordinateur : l'application, Node.js et le service Windows. Il règle aussi l'établissement, le HTTPS, l'Active Directory, les courriels et la conservation des données, puis les contrôle. Aucun fichier n'est à modifier ensuite ; reste à planifier la sauvegarde, l'ancrage et la purge, comme l'explique le guide d'installation.
 
 [Files]
 Source: "{#Source}\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion

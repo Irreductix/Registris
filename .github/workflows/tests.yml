@@ -35,7 +35,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node: [22, 24, 26]
+        # 22.13.0 : la version minimale annoncée, la première où node:sqlite marche sans option.
+        node: ['22.13.0', 22, 24, 26]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

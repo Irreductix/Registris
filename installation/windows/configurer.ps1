@@ -143,8 +143,9 @@ try {
   foreach ($d in '', 'preuves', 'logos', 'ancrages', 'sauvegardes', 'journaux', 'tls') {
     New-Item -ItemType Directory -Force -Path (Join-Path $Donnees $d) | Out-Null
   }
-  # Le service tourne sous LocalService (S-1-5-19) : lecture et écriture sur les données.
-  & icacls $Donnees /grant '*S-1-5-19:(OI)(CI)M' /Q | Out-Null
+  # Héritage de ProgramData coupé (sinon tout utilisateur du serveur lit la base) : système, administrateurs,
+  # compte qui installe, et LocalService (S-1-5-19), le compte du service, en lecture et écriture.
+  & icacls $Donnees /inheritance:r /grant '*S-1-5-18:(OI)(CI)F' /grant '*S-1-5-32-544:(OI)(CI)F' /grant "*${sidCourant}:(OI)(CI)F" /grant '*S-1-5-19:(OI)(CI)M' /Q | Out-Null
   $dossierTls = Join-Path $Donnees 'tls'
 
   if ($mode -eq 'conserver') {

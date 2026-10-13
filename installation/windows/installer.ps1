@@ -66,9 +66,10 @@ if (Test-Path (Join-Path $Source 'node\node.exe')) {
   Write-Host "Node.js livré avec l'archive : $(& (Join-Path $Source 'node\node.exe') --version)"
 } else {
   $node = Get-Command node -ErrorAction SilentlyContinue
-  if (-not $node) { Echec 'Node.js est absent et l''archive ne le contient pas : installez Node.js 22 LTS ou plus récent (https://nodejs.org), ou utilisez l''archive Windows de la release.' }
-  $majeure = [int]((& $node.Source --version).TrimStart('v').Split('.')[0])
-  if ($majeure -lt 22) { Echec "Node.js $majeure trouvé, version 22 minimum requise." }
+  if (-not $node) { Echec 'Node.js est absent et l''archive ne le contient pas : installez Node.js 22.13 ou plus récent, 24 LTS conseillé (https://nodejs.org), ou utilisez l''archive Windows de la release.' }
+  # node:sqlite n'est utilisable sans option qu'à partir de Node.js 22.13.
+  $v = (& $node.Source --version).TrimStart('v').Split('.')
+  if ([int]$v[0] -lt 22 -or ([int]$v[0] -eq 22 -and [int]$v[1] -lt 13)) { Echec "Node.js $($v -join '.') trouvé, version 22.13 minimum requise." }
   $nodeExe = $node.Source
   Write-Host "Node.js du système : $(& $node.Source --version)"
 }

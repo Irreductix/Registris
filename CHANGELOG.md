@@ -1,7 +1,28 @@
 # Journal des versions
 
-## Non publié
+## 0.5.1
 
+- Sécurité : proxy-addr 2.0.8, qui corrige l'avis GHSA-jqcg-44mw-7w3h
+  (usurpation d'adresse IP via un sous-réseau de confiance IPv4 écrit en
+  IPv6). La 0.5.0 embarquait proxy-addr 2.0.7. Registris règle le proxy de
+  confiance par nombre de sauts, pas par sous-réseau ; la mise à jour reste
+  recommandée.
+- Sécurité, Windows : le dossier des données, `C:\ProgramData\Registris`,
+  n'hérite plus des droits de ProgramData, qui le rendaient lisible par tout
+  utilisateur du serveur. Seuls le système, les administrateurs, le compte du
+  service et le compte qui installe y ont accès. La mise à jour applique la
+  correction aux installations existantes.
+- Publication : la release exécute `npm audit` sur les dépendances de
+  production et s'arrête au niveau « high » ; l'image Docker n'est construite
+  qu'après l'archive.
+- Node.js 22.13 minimum, contrôlé par les installateurs et testé en
+  intégration continue : c'est la première version où `node:sqlite` marche
+  sans option.
+- Installateur Windows : le message d'accueil rappelle qu'il reste à
+  planifier la sauvegarde, l'ancrage et la purge.
+- Documentation : chaque affirmation relue contre le code (TLS porté par
+  l'application, secret de session, tâches planifiées, purge, dépendances,
+  prérequis, accès à internet avec Docker, accessibilité, commandes).
 - Documentation : page « Questions d'un RSSI » (`docs/RSSI.md`), les réponses
   tirées du code aux questions d'une DSI avant d'installer, y compris ce qui
   n'est pas couvert.
@@ -9,10 +30,12 @@
   guide de contribution et le site ; modèles de tickets (essai dans un
   établissement, bug, question) avec lien vers le signalement privé de faille.
 - Registris est désormais publié par le collectif Irréductix (irreductix.fr) :
-  dépôt déplacé vers github.com/Irreductix/Registris (les anciennes adresses
-  redirigent), site de présentation sur registris.irreductix.fr. L'image Docker
-  sera publiée sous ghcr.io/irreductix/registris à partir de la prochaine
-  version.
+  dépôt déplacé vers github.com/Irreductix/Registris (les adresses github.com
+  redirigent ; l'ancienne adresse du site, quentincazier.github.io/Registris, ne
+  répond plus), site de présentation sur registris.irreductix.fr. L'image
+  Docker est publiée sous ghcr.io/irreductix/registris à partir de cette
+  version ; les versions 0.3.0 à 0.5.0 restent sous
+  ghcr.io/quentincazier/registris.
 
 ## 0.5.0
 
