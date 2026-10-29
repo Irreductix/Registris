@@ -53,7 +53,7 @@
     "express-session": "^1.19.0",
     "ldap-authentication": "^4.0.4",
     "ldapts": "^9.2.0",
-    "multer": "^2.4.0",
+    "multer": "^2.5.0",
     "nodemailer": "^10.0.10"
   },
   "overrides": {
