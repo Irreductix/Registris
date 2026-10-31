@@ -54,7 +54,7 @@
     "ldap-authentication": "^4.0.4",
     "ldapts": "^9.2.0",
     "multer": "^2.4.0",
-    "nodemailer": "^10.0.10"
+    "nodemailer": "^10.1.4"
   },
   "overrides": {
     "qs": "^6.15.4"
