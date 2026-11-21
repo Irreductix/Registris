@@ -135,8 +135,8 @@ footer .in{max-width:1100px;margin:0 auto;padding:18px 22px;font-size:13px;color
 .haut{background:#10131a;color:#faf2e6}
 .haut .r1{height:68px}
 .logo{color:#faf2e6;font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.03em}
-.logo .chip{background:none;padding:0;border-radius:0}
-.logo .chip img{width:auto;height:36px}
+.logo .chip{background:#faf2e6;padding:4px;border-radius:9px}
+.logo .chip img{width:28px;height:28px}
 .logo .et{font-family:var(--sans);font-size:12.5px;letter-spacing:0;color:#c8c5ba;opacity:1;border-color:#ffffff40}
 .haut nav a{color:#e6e0d5;opacity:1}
 .haut nav a:hover{background:none;color:#f2bd54}
@@ -151,19 +151,25 @@ footer .in{color:#c8c5ba;align-items:center}
 footer a{color:#faf2e6}
 footer .irx{display:block;height:34px;width:auto}
 @media (max-width:700px){h1{font-size:34px}}
+/* Retouches : contenu plus large, lien vers Irréductix dans la barre. */
+.haut .r1,main,footer .in{max-width:1280px}
+.haut nav{align-items:center}
+.haut nav a.btn-irx{border:1px solid #ffffff55;border-radius:999px;padding:6px 15px;margin-left:6px}
+.haut nav a.btn-irx:hover{border-color:#eda809;color:#faf2e6}
 </style>
 </head>
 <body>
 <a class="evitement" href="#contenu">Aller au contenu</a>
 <header class="haut">
   <div class="r1">
-    <a class="logo" href="#contenu"><span class="chip"><img src="marque.svg" alt="" width="599" height="956"></span><span>Registris</span><span class="et">logiciel libre</span></a>
+    <a class="logo" href="#contenu"><span class="chip"><img src="marque.svg" alt="" width="26" height="26"></span><span>Registris</span><span class="et">logiciel libre</span></a>
     <nav aria-label="Navigation principale">
       <a href="#fonctions">Fonctions</a>
       <a href="#dsi">Pour la DSI</a>
       <a href="#installer">Installer</a>
       <a href="#essayer">Essayer</a>
       <a href="#documentation">Documentation</a>
+      <a class="btn-irx" href="https://irreductix.fr/">Le collectif Irréductix</a>
       <a class="btn-p" href="https://github.com/Irreductix/Registris">Code source</a>
     </nav>
   </div>
