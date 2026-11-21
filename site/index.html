@@ -119,13 +119,45 @@ footer .in{max-width:1100px;margin:0 auto;padding:18px 22px;font-size:13px;color
   main{padding:26px 14px 48px}
   th{white-space:normal}
 }
+
+/* Charte Irréductix (novembre 2026) : palette du logo, titres en Georgia, Public Sans. */
+@font-face{font-family:"Public Sans";src:url("polices/public-sans.woff2") format("woff2");font-weight:100 900;font-display:swap}
+:root{
+  --serif:Georgia,"Times New Roman",serif;
+  --sans:"Public Sans",system-ui,"Segoe UI",Roboto,sans-serif;
+  --fond:#faf2e6;--blanc:#fffcf7;--gris:#f0e7d9;--gris-2:#f6efe2;
+  --encre:#19231f;--encre-2:#56665e;--encre-3:#6b766f;
+  --filet:#e4dccd;--filet-fort:#d7d0c2;
+  --accent:#10131a;--accent-2:#262c36;--accent-clair:#f3e6c8;
+  --fait:#2f5a44;--fait-fond:#e4e9de;--fait-filet:#cdd8ca;
+  --ombre:none;
+}
+.haut{background:#10131a;color:#faf2e6}
+.haut .r1{height:68px}
+.logo{color:#faf2e6;font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.03em}
+.logo .chip{background:none;padding:0;border-radius:0}
+.logo .chip img{width:auto;height:36px}
+.logo .et{font-family:var(--sans);font-size:12.5px;letter-spacing:0;color:#c8c5ba;opacity:1;border-color:#ffffff40}
+.haut nav a{color:#e6e0d5;opacity:1}
+.haut nav a:hover{background:none;color:#f2bd54}
+.haut nav a.btn-p{background:#eda809;color:#10131a;border-radius:999px;padding:6px 15px}
+.haut nav a.btn-p:hover{background:#f8bd38}
+h1{font-family:var(--serif);font-weight:400;font-size:44px;line-height:1.04;letter-spacing:-.045em}
+h2{font-family:var(--serif);font-weight:400;font-size:28px;letter-spacing:-.035em}
+.btn{border-radius:999px}
+.bloc{border-radius:18px}
+footer{background:#10131a;border:0;border-radius:22px 22px 0 0;margin-top:28px}
+footer .in{color:#c8c5ba;align-items:center}
+footer a{color:#faf2e6}
+footer .irx{display:block;height:34px;width:auto}
+@media (max-width:700px){h1{font-size:34px}}
 </style>
 </head>
 <body>
 <a class="evitement" href="#contenu">Aller au contenu</a>
 <header class="haut">
   <div class="r1">
-    <a class="logo" href="#contenu"><span class="chip"><img src="marque.svg" alt="" width="26" height="26"></span><span>Registris</span><span class="et">logiciel libre</span></a>
+    <a class="logo" href="#contenu"><span class="chip"><img src="marque.svg" alt="" width="599" height="956"></span><span>Registris</span><span class="et">logiciel libre</span></a>
     <nav aria-label="Navigation principale">
       <a href="#fonctions">Fonctions</a>
       <a href="#dsi">Pour la DSI</a>
@@ -319,7 +351,7 @@ npm start      <span class="c"># http://127.0.0.1:3000</span></pre>
 <footer>
   <div class="in">
     <span>Registris, logiciel libre sous licence EUPL-1.2, publié par <a href="https://irreductix.fr">Irréductix</a>. Code, tickets et contributions sur <a href="https://github.com/Irreductix/Registris">GitHub</a>. Contact : <a href="mailto:contact@irreductix.fr">contact@irreductix.fr</a>.</span>
-    <span>Polices Atkinson Hyperlegible Next, licence SIL Open Font.</span>
+    <span>Polices Public Sans et Atkinson Hyperlegible Next, licence SIL Open Font.</span><a href="https://irreductix.fr" title="Le collectif Irréductix"><img class="irx" src="irreductix.svg" alt="Irréductix" width="240" height="97"></a>
   </div>
 </footer>
 </body>
